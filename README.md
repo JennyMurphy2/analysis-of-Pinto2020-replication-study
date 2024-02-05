@@ -1,1 +1,1 @@
-# analysis-of-Pinto2020-replication-study
+This repository is part of a large replication project conducted by the Sports Science Replication Centre (https://ssreplicationcentre.com/). It includes the data and analyses for the replication study of "Voluntary muscle relaxation can mitigate fatigue and improve countermovement jump performance" by Pinto and McGill (2020).
