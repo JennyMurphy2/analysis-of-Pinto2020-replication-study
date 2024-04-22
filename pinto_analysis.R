@@ -19,33 +19,25 @@ wide_data <- data %>%
   select(id, condition, ft_height) %>%
   pivot_wider(names_from = condition, 
               values_from = ft_height,
-              values_fn = function(x) mean(x, na.rm = TRUE)) # compute the mean of the ten trials for each condition
-
-# Create new variable for percentage difference between shakey and no shakey condition
-wide_data$percent_diff <- apply(wide_data[,c('shakey', 'noshakey')], 1, function(x) { (x[1]-x[2])/x[2] * 100 } )
-
-# Create new variable for responder vs non-responder
-wide_data <- wide_data %>%
-  mutate(response = case_when(percent_diff > 0.1 ~ 'Responder',
+              values_fn = function(x) mean(x, na.rm = TRUE)) %>% # compute the mean of the ten trials for each condition
+  rowwise %>%
+  mutate(percent_diff = ((shakey-noshakey)/noshakey)*100) %>% # Create new variable for percentage difference between shakey and no shakey condition
+  mutate(response = case_when(percent_diff > 0.1 ~ 'Responder', # Create new variable for responder vs non-responder
                               percent_diff < 0.1 ~ 'Non-responder'))
 
 # add response variable to the long data set
 
 data$response <- rep(wide_data$response, each=20, length.out=1120)
 
-# exporting the dataset with response variable as a .csv
-#data %>%
-#  readr::write_csv("Pinto2020_replicationdata.csv", na="")
-
-
 # Assumptions ----------------------------------------------------------------------------
 
-# Descriptives
+# Descriptives ------------
 
 summary_data <- data %>%
   group_by(condition) %>%
   summarise(mean = mean(ft_height),
             sd = sd(ft_height))
+summary_data
 
 # Plots ---------------------------------------------------------------------------
 
@@ -92,7 +84,6 @@ data_afx
 
 summary(data_afx)
 
-
 ## Assumption checking ---------
 
 ### Normality test -------
@@ -101,11 +92,11 @@ shapiro.test(data_afx$lm$residuals) # residuals are not normally distributed
 
 data %>% 
   group_by(condition) %>% 
-  rstatix::shapiro_test(ft_height)
+  rstatix::shapiro_test(ft_height) # individual groups are not normally distributed
 
 data %>% 
   group_by(trial) %>% 
-  rstatix::shapiro_test(ft_height)
+  rstatix::shapiro_test(ft_height) # individual groups are not normally distributed
 
 ### Outliers check -------
 
@@ -143,7 +134,6 @@ ori_study <- data.frame(
   ori_df1 = 1,
   ori_df2 = 10,
   reported_es = 0.496)
-
 
 # Calculate the F-value from the original study using the reported p-value
 
