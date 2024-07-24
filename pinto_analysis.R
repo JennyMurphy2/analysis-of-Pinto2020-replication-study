@@ -7,6 +7,8 @@ library(reshape2)
 library(pastecs)
 library(MOTE)
 
+set.seed(21)
+
 data <- read_csv("shakey_noshakey_data.csv")
 head(data)
 
@@ -150,10 +152,12 @@ ori_Fval
 #dfm = degrees of freedom for the model/IV/between
 #dfe = degrees of freedom for the error/residual/within
 
-es <- eta.F(dfm=ori_study$ori_df1, dfe=ori_study$ori_df2, Fvalue=ori_Fval, a = 0.05)
-es
+calculated_ori_es <- eta.F(dfm=ori_study$ori_df1, dfe=ori_study$ori_df2, Fvalue=ori_Fval, a = 0.05)
+calculated_ori_es
 
-# Replication test -----
+# This calculation doesn't match the reported pes of 0.496
+
+# Replication z-test using reported value -----
 # main effect of condition
 
 pes_rep = data_afx$anova_table$pes[4]
@@ -165,6 +169,18 @@ rho_ori = 2 * sqrt(pes_ori) - 1
 rho_rep = 2 * sqrt(pes_rep) - 1
 
 rep_test = TOSTER::compare_cor(r1 = rho_ori,
+                               df1 = df_ori,
+                               r2 = rho_rep,
+                               df2 = df_rep,
+                               alternative = "greater")
+rep_test
+
+
+# Z-test using the calculated original effect size ------
+
+rho_ori_calc = 2 * sqrt(calculated_ori_es$eta) - 1
+
+rep_test = TOSTER::compare_cor(r1 = rho_ori_calc,
                                df1 = df_ori,
                                r2 = rho_rep,
                                df2 = df_rep,
